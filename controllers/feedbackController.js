@@ -1,31 +1,35 @@
 const asyncHandler = require('express-async-handler');
-const Feedback = require('../models/feedbackModel');
+const { getFeedbackService, setFeedbackService } = require('../services/feedbackServices');
 
 // @desc    Get Feedback
 // @route   GET /api/feedback
 // @access  Public
 const getFeedback = asyncHandler(async (req, res) => {
-  const feedback = await Feedback.find();
-
-  res.status(200).json(feedback);
+  try {
+    const feedbacks = await getFeedbackService({}, null, null);
+    res.status(200).json(feedbacks);
+  } catch (e) {
+    throw new Error(e.message);
+  }
 });
 
 // @desc    Set Feedback
 // @route   POST /api/feedback
 // @access  Public
 const setFeedback = asyncHandler(async (req, res) => {
-  if (!req.body.name && !req.body.email) {
+  const { name, email, message } = req.body;
+
+  if (!name && !email) {
     res.status(400);
     throw new Error('Please fill all field');
   }
 
-  const feedback = await Feedback.create({
-    name: req.body.name,
-    email: req.body.email,
-    message: req.body.message
-  });
-
-  res.status(200).json(feedback);
+  try {
+    const feedback = await setFeedbackService(name, email, message);
+    res.status(200).json(feedback);
+  } catch (e) {
+    throw new Error(e.message);
+  }
 });
 
 module.exports = {
