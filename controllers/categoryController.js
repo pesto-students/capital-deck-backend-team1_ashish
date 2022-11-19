@@ -1,90 +1,114 @@
 const asyncHandler = require('express-async-handler');
-const Category = require('../models/categoryModel');
+const { checkUserDataAuthorization } = require('../services/commonServices');
+const {
+  getCategoriesService,
+  setCategoriesService,
+  getCategoryByIdService,
+  updateCategoryByIdService,
+  deleteCategoryService
+} = require('../services/categoryServices');
 
 // @desc    Get Categories
 // @route   GET /api/categories
 // @access  Private
 const getCategories = asyncHandler(async (req, res) => {
-  const categories = await Category.find({ user: req.user.id });
+  const { id } = req.user;
 
-  res.status(200).json(categories);
+  try {
+    const categories = await getCategoriesService({ user: id }, null, null);
+    res.status(200).json(categories);
+  } catch (e) {
+    throw new Error(e.message);
+  }
 });
 
 // @desc    Set Category
 // @route   POST /api/categories
 // @access  Private
 const setCategory = asyncHandler(async (req, res) => {
-  if (!req.body.category_name && !req.body.category_type) {
+  const { categoryname, categorytype, categorydesc } = req.body;
+  const { id } = req.user;
+
+  if (!categoryname && !categorytype) {
     res.status(400);
     throw new Error('Please fill all field');
   }
 
-  const category = await Category.create({
-    category_name: req.body.category_name,
-    category_type: req.body.category_type,
-    category_desc: req.body.category_desc,
-    user: req.user.id
-  });
-
-  res.status(200).json(category);
+  try {
+    const category = await setCategoriesService(categoryname, categorytype, categorydesc, id);
+    res.status(200).json(category);
+  } catch (e) {
+    throw new Error(e.message);
+  }
 });
 
 // @desc    Update Category
 // @route   PUT /api/categories/:id
 // @access  Private
 const updateCategory = asyncHandler(async (req, res) => {
-  const category = await Category.findById(req.params.id);
+  const paramid = req.params.id;
+  const { categoryname, categorytype, categorydesc } = req.body;
+  const { user } = req;
 
-  if (!category) {
-    res.status(400);
-    throw new Error('Category not found');
+  try {
+    const category = await getCategoryByIdService(paramid);
+
+    // Category not found
+    if (!category) {
+      res.status(400);
+      throw new Error('Category not found');
+    }
+
+    // Check user and make sure the logged in user matches the category user
+    const Authorized = await checkUserDataAuthorization(category, user);
+    if (!Authorized) {
+      res.status(401);
+      throw new Error('User not authorized');
+    }
+
+    // Update category by id
+    const updatecategory = await updateCategoryByIdService(
+      paramid,
+      categoryname,
+      categorytype,
+      categorydesc
+    );
+    res.status(200).json(updatecategory);
+  } catch (e) {
+    throw new Error(e.message);
   }
-
-  // Check for user
-  if (!req.user) {
-    res.status(401);
-    throw new Error('User not found');
-  }
-
-  // Make sure the logged in user matches the category user
-  if (category.user.toString() !== req.user.id) {
-    res.status(401);
-    throw new Error('User not authorized');
-  }
-
-  const updatedCategory = await Category.findByIdAndUpdate(req.params.id, req.body, {
-    new: true
-  });
-
-  res.status(200).json(updatedCategory);
 });
 
 // @desc    Delete Category
 // @route   DELETE /api/categories/:id
 // @access  Private
 const deleteCategory = asyncHandler(async (req, res) => {
-  const category = await Category.findById(req.params.id);
+  const paramid = req.params.id;
+  const { user } = req;
 
-  if (!category) {
-    res.status(400);
-    throw new Error('Category not found');
+  try {
+    const category = await getCategoryByIdService(paramid);
+
+    // Category not found
+    if (!category) {
+      res.status(400);
+      throw new Error('Category not found');
+    }
+
+    // Check user and make sure the logged in user matches the category user
+    const Authorized = await checkUserDataAuthorization(category, user);
+    if (!Authorized) {
+      res.status(401);
+      throw new Error('User not authorized');
+    }
+
+    // Delete category
+    await deleteCategoryService(category);
+
+    res.status(200).json({ id: paramid });
+  } catch (e) {
+    throw new Error(e.message);
   }
-
-  // Check for user
-  if (!req.user) {
-    res.status(401);
-    throw new Error('User not found');
-  }
-
-  // Make sure the logged in user matches the category user
-  if (category.user.toString() !== req.user.id) {
-    res.status(401);
-    throw new Error('User not authorized');
-  }
-
-  await category.remove();
-
-  res.status(200).json({ id: req.params.id });
 });
 
 module.exports = {

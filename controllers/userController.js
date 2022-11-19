@@ -1,14 +1,15 @@
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
 const asyncHandler = require('express-async-handler');
-const User = require('../models/userModel');
-
-// Generate JWT
-const generateToken = (id) => {
-  return jwt.sign({ id }, 'capitaldeck2022', {
-    expiresIn: '30d'
-  });
-};
+const {
+  generateTokenService,
+  hashedPasswordService,
+  checkPasswordServices
+} = require('../services/commonServices');
+const {
+  getUserByIdService,
+  checkUserExistService,
+  createUserervice,
+  updateUserByIdService
+} = require('../services/userServices');
 
 // @desc    Register New User
 // @route   POST /api/users
@@ -27,36 +28,33 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new Error('Confirm password does not match with password');
   }
 
-  // Check if user exists
-  const userExists = await User.findOne({ email });
+  try {
+    // Check if user exists
+    const user = await checkUserExistService(email);
+    if (user) {
+      res.status(400);
+      throw new Error('User already exists');
+    }
 
-  if (userExists) {
-    res.status(400);
-    throw new Error('User already exists');
-  }
+    // Hash password
+    const hashedPassword = await hashedPasswordService(password);
 
-  // Hash password
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
+    // Create user
+    const newuser = await createUserervice(name, email, hashedPassword, dob);
 
-  // Create user
-  const user = await User.create({
-    name,
-    email,
-    password: hashedPassword,
-    dob
-  });
-
-  if (user) {
-    res.status(201).json({
-      _id: user.id,
-      name: user.name,
-      email: user.email,
-      token: generateToken(user._id)
-    });
-  } else {
-    res.status(400);
-    throw new Error('Invalid user data');
+    if (newuser) {
+      res.status(201).json({
+        _id: newuser.id,
+        name: newuser.name,
+        email: newuser.email,
+        token: generateTokenService(newuser._id)
+      });
+    } else {
+      res.status(400);
+      throw new Error('Invalid user data');
+    }
+  } catch (e) {
+    throw new Error(e.message);
   }
 });
 
@@ -66,19 +64,31 @@ const registerUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  // Check for user email
-  const user = await User.findOne({ email });
+  try {
+    // Check for user email
+    const user = await checkUserExistService(email);
 
-  if (user && (await bcrypt.compare(password, user.password))) {
-    res.json({
-      _id: user.id,
-      name: user.name,
-      email: user.email,
-      token: generateToken(user._id)
-    });
-  } else {
-    res.status(400);
-    throw new Error('Invalid credentials');
+    if (user) {
+      // Check for user password
+      const passwordMatch = await checkPasswordServices(password, user);
+
+      if (passwordMatch) {
+        res.status(201).json({
+          _id: user.id,
+          name: user.name,
+          email: user.email,
+          token: generateTokenService(user._id)
+        });
+      } else {
+        res.status(400);
+        throw new Error('Invalid credentials');
+      }
+    } else {
+      res.status(400);
+      throw new Error('Invalid user');
+    }
+  } catch (e) {
+    throw new Error(e.message);
   }
 });
 
@@ -94,45 +104,40 @@ const getProfile = asyncHandler(async (req, res) => {
 // @access  Private
 const updateProfile = asyncHandler(async (req, res) => {
   const { name, email, password, dob, contactno, gender } = req.body;
+  const { user } = req;
+  const paramid = req.params.id;
 
-  const user = await User.findById(req.params.id);
-  if (!user) {
-    res.status(400);
-    throw new Error('User not found');
-  }
+  try {
+    const currentuser = await getUserByIdService(paramid);
+    // Check for user
+    if (!currentuser) {
+      res.status(401);
+      throw new Error('User not found');
+    }
 
-  // Check for user
-  if (!req.user) {
-    res.status(401);
-    throw new Error('User not found');
-  }
+    // Make sure the logged in user matches the user
+    if (currentuser._id.toString() !== user.id) {
+      res.status(401);
+      throw new Error('User not authorized');
+    }
 
-  // Make sure the logged in user matches the user
-  if (user._id.toString() !== req.user.id) {
-    res.status(401);
-    throw new Error('User not authorized');
-  }
+    // Hash password
+    const hashedPassword = await hashedPasswordService(password);
 
-  // Hash password
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
-
-  const updatedUser = await User.findByIdAndUpdate(
-    req.params.id,
-    {
+    const updatedUser = await updateUserByIdService(
+      req.params.id,
       name,
       email,
-      password: hashedPassword,
+      hashedPassword,
       dob,
-      contact_no: contactno,
+      contactno,
       gender
-    },
-    {
-      new: true
-    }
-  );
+    );
 
-  res.status(200).json(updatedUser);
+    res.status(200).json(updatedUser);
+  } catch (e) {
+    throw new Error(e.message);
+  }
 });
 
 module.exports = {
