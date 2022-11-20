@@ -3,9 +3,14 @@ const logger = require('../config/logger');
 const errorHandler = (err, req, res, next) => {
   const statusCode = res.statusCode ? res.statusCode : 500;
 
+  let errormail = '';
+  if (req.user) {
+    errormail = req.user.email;
+  }
+
   logger.error({
     message: err.message,
-    user: req.user.email,
+    user: errormail,
     ip: req.ip,
     method: req.method,
     path: req.path
