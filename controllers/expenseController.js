@@ -5,7 +5,8 @@ const Expense = require('../models/expenseModel');
 // @route   GET /api/expense
 // @access  Private
 const getExpense = asyncHandler(async (req, res) => {
-  const expense = await Expense.find();
+  const { id } = req.user;
+  const expense = await Expense.find({ user: id });
 
   res.status(200).json(expense);
 });
@@ -39,6 +40,7 @@ const updateExpense = asyncHandler(async (req, res) => {
   const paramid = req.params.id;
   const expense = await Expense.findById(paramid);
   const { user } = req;
+  const { expensedate, expensetitle, expenseamount, categoryid } = req.body;
 
   // Check for Expense
   if (!expense) {
@@ -58,12 +60,18 @@ const updateExpense = asyncHandler(async (req, res) => {
     throw new Error('User not authorized');
   }
 
-  const updatedExpense = await Expense.findByIdAndUpdate(paramid, req.body, {
-    new: true
-  });
-  console.log(paramid);
-  console.log(req.body);
-  console.log(updatedExpense);
+  const updatedExpense = await Expense.findByIdAndUpdate(
+    paramid,
+    {
+      expense_date: expensedate,
+      expense_title: expensetitle,
+      expense_amount: expenseamount,
+      category_id: categoryid
+    },
+    {
+      new: true
+    }
+  );
 
   res.status(200).json(updatedExpense);
 });

@@ -5,7 +5,8 @@ const Income = require('../models/incomeModel');
 // @route   GET /api/income
 // @access  Private
 const getIncome = asyncHandler(async (req, res) => {
-  const income = await Income.find();
+  const { id } = req.user;
+  const income = await Income.find({ user: id });
 
   res.status(200).json(income);
 });
@@ -41,6 +42,7 @@ const updateIncome = asyncHandler(async (req, res) => {
   const paramid = req.params.id;
   const income = await Income.findById(paramid);
   const { user } = req;
+  const { incomedate, incometitle, incomeamount, categoryid } = req.body;
 
   if (!income) {
     res.status(400);
@@ -59,9 +61,18 @@ const updateIncome = asyncHandler(async (req, res) => {
     throw new Error('User not authorized');
   }
 
-  const updatedIncome = await Income.findByIdAndUpdate(paramid, req.body, {
-    new: true
-  });
+  const updatedIncome = await Income.findByIdAndUpdate(
+    paramid,
+    {
+      income_date: incomedate,
+      income_title: incometitle,
+      income_amount: incomeamount,
+      category_id: categoryid
+    },
+    {
+      new: true
+    }
+  );
 
   res.status(200).json(updatedIncome);
 });
