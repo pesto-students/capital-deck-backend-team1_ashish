@@ -1,6 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv').config();
 const colors = require('colors');
+const cors = require('cors');
 const errorHandler = require('./middleware/errorMiddleware');
 const logger = require('./config/logger');
 
@@ -10,7 +11,7 @@ const connectDB = require('./config/db');
 connectDB();
 
 const app = express();
-
+app.use(cors({ origin: '*' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
