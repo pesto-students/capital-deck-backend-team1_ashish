@@ -20,6 +20,7 @@ app.use('/api/feedback', require('./routes/feedbackRoutes'));
 app.use('/api/categories', require('./routes/categoryRoutes'));
 app.use('/api/income', require('./routes/incomeRoutes'));
 app.use('/api/expense', require('./routes/expenseRoutes'));
+app.use('/api/categoryincomes', require('./routes/incomesByCategoryRoutes'));
 
 app.use(errorHandler);
 
