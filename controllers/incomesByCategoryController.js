@@ -2,7 +2,7 @@ const asyncHandler = require('express-async-handler');
 const Income = require('../models/incomeModel');
 
 // @desc    Get Incomes by Category
-// @route   GET /api/incomesbycategory/:id
+// @route   GET /api/categoryincomes/:id
 // @access  Private
 
 const getIncomesByCategory = asyncHandler(async (req, res) => {
