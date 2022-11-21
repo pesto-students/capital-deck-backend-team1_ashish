@@ -21,6 +21,7 @@ app.use('/api/categories', require('./routes/categoryRoutes'));
 app.use('/api/income', require('./routes/incomeRoutes'));
 app.use('/api/expense', require('./routes/expenseRoutes'));
 app.use('/api/categoryincomes', require('./routes/incomesByCategoryRoutes'));
+app.use('/api/categoryexpenses', require('./routes/expenseByCategoryRoutes'));
 
 app.use(errorHandler);
 
