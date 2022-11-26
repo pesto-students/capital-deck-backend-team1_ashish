@@ -111,9 +111,30 @@ const deleteCategory = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Get Income Categories
+// @route   GET /api/incomecategories
+// @access  Private
+
+const getCategoriesByType = asyncHandler(async (req, res) => {
+  const { id } = req.user;
+  const { categorytype } = req.params;
+
+  try {
+    const categories = await getCategoriesService(
+      { user: id, category_type: categorytype },
+      null,
+      null
+    );
+    res.status(200).json(categories);
+  } catch (e) {
+    throw new Error(e.message);
+  }
+});
+
 module.exports = {
   getCategories,
   setCategory,
   updateCategory,
-  deleteCategory
+  deleteCategory,
+  getCategoriesByType
 };
