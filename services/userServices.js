@@ -21,20 +21,23 @@ const createUserervice = async (name, email, hashedPassword, dob) => {
 };
 
 const updateUserByIdService = async (id, name, email, hashedPassword, dob, contactno, gender) => {
-  const updatedUser = await User.findByIdAndUpdate(
-    id,
-    {
-      name,
-      email,
-      password: hashedPassword,
-      dob,
-      contact_no: contactno,
-      gender
-    },
-    {
-      new: true
-    }
-  );
+  let userData = {
+    name,
+    email,
+    dob,
+    contact_no: contactno,
+    gender
+  };
+
+  if (hashedPassword !== '' && hashedPassword !== undefined) {
+    userData = {
+      ...userData,
+      password: hashedPassword
+    };
+  }
+  const updatedUser = await User.findByIdAndUpdate(id, userData, {
+    new: true
+  });
   return updatedUser;
 };
 
