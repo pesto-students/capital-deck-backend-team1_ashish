@@ -106,6 +106,7 @@ const updateProfile = asyncHandler(async (req, res) => {
   const { name, email, password, dob, contactno, gender } = req.body;
   const { user } = req;
   const paramid = req.params.id;
+  let hashedPassword = '';
 
   try {
     const currentuser = await getUserByIdService(paramid);
@@ -122,7 +123,9 @@ const updateProfile = asyncHandler(async (req, res) => {
     }
 
     // Hash password
-    const hashedPassword = await hashedPasswordService(password);
+    if (password !== '' && password !== undefined) {
+      hashedPassword = await hashedPasswordService(password);
+    }
 
     const updatedUser = await updateUserByIdService(
       req.params.id,
