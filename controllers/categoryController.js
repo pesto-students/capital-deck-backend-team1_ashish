@@ -26,7 +26,7 @@ const getCategories = asyncHandler(async (req, res) => {
 // @route   POST /api/categories
 // @access  Private
 const setCategory = asyncHandler(async (req, res) => {
-  const { categoryname, categorytype, categorydesc } = req.body;
+  const { categoryname, categorytype, categorydesc, color } = req.body;
   const { id } = req.user;
 
   if (!categoryname && !categorytype) {
@@ -35,7 +35,13 @@ const setCategory = asyncHandler(async (req, res) => {
   }
 
   try {
-    const category = await setCategoriesService(categoryname, categorytype, categorydesc, id);
+    const category = await setCategoriesService(
+      categoryname,
+      categorytype,
+      categorydesc,
+      color,
+      id
+    );
     res.status(200).json(category);
   } catch (e) {
     throw new Error(e.message);
@@ -47,7 +53,7 @@ const setCategory = asyncHandler(async (req, res) => {
 // @access  Private
 const updateCategory = asyncHandler(async (req, res) => {
   const paramid = req.params.id;
-  const { categoryname, categorytype, categorydesc } = req.body;
+  const { categoryname, categorytype, categorydesc, color } = req.body;
   const { user } = req;
 
   try {
@@ -71,7 +77,8 @@ const updateCategory = asyncHandler(async (req, res) => {
       paramid,
       categoryname,
       categorytype,
-      categorydesc
+      categorydesc,
+      color
     );
     res.status(200).json(updatecategory);
   } catch (e) {
