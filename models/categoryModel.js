@@ -10,6 +10,9 @@ const categorySchema = mongoose.Schema(
       type: String,
       required: [true, 'Please add a category type']
     },
+    color: {
+      type: String
+    },
     category_desc: {
       type: String
     },

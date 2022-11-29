@@ -10,23 +10,25 @@ const getCategoriesService = async (query, projection, option) => {
   return categories;
 };
 
-const setCategoriesService = async (categoryname, categorytype, categorydesc, id) => {
+const setCategoriesService = async (categoryname, categorytype, categorydesc, color, id) => {
   const category = await Category.create({
     category_name: categoryname,
     category_type: categorytype,
     category_desc: categorydesc,
+    color,
     user: id
   });
   return category;
 };
 
-const updateCategoryByIdService = async (id, categoryname, categorytype, categorydesc) => {
+const updateCategoryByIdService = async (id, categoryname, categorytype, categorydesc, color) => {
   const category = await Category.findByIdAndUpdate(
     id,
     {
       category_name: categoryname,
       category_type: categorytype,
-      category_desc: categorydesc
+      category_desc: categorydesc,
+      color
     },
     {
       new: true
