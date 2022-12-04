@@ -1,3 +1,4 @@
+/* eslint-disable prefer-template */
 const multer = require('multer');
 
 const storage = multer.diskStorage({
@@ -20,6 +21,6 @@ const filefilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({ storage: storage, fileFilter: filefilter });
+const upload = multer({ storage, fileFilter: filefilter });
 
 module.exports = upload;
