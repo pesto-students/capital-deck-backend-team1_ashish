@@ -20,7 +20,17 @@ const createUserervice = async (name, email, hashedPassword, dob) => {
   return user;
 };
 
-const updateUserByIdService = async (id, name, email, hashedPassword, dob, contactno, gender) => {
+const updateUserByIdService = async (
+  id,
+  name,
+  email,
+  hashedPassword,
+  dob,
+  contactno,
+  gender,
+  filename,
+  filepath
+) => {
   let userData = {
     name,
     email,
@@ -35,6 +45,15 @@ const updateUserByIdService = async (id, name, email, hashedPassword, dob, conta
       password: hashedPassword
     };
   }
+
+  if (filename !== '' && filename !== undefined && filepath !== '' && filepath !== undefined) {
+    userData = {
+      ...userData,
+      file_name: filename,
+      file_path: filepath
+    };
+  }
+
   const updatedUser = await User.findByIdAndUpdate(id, userData, {
     new: true
   });

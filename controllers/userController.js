@@ -47,6 +47,7 @@ const registerUser = asyncHandler(async (req, res) => {
         _id: newuser.id,
         name: newuser.name,
         email: newuser.email,
+        file_path: user.file_path,
         token: generateTokenService(newuser._id)
       });
     } else {
@@ -77,6 +78,7 @@ const loginUser = asyncHandler(async (req, res) => {
           _id: user.id,
           name: user.name,
           email: user.email,
+          file_path: user.file_path,
           token: generateTokenService(user._id)
         });
       } else {
@@ -107,6 +109,12 @@ const updateProfile = asyncHandler(async (req, res) => {
   const { user } = req;
   const paramid = req.params.id;
   let hashedPassword = '';
+  let filename = '';
+  let filepath = '';
+  if (req.file !== undefined) {
+    filename = req.file.originalname;
+    filepath = req.file.path;
+  }
 
   try {
     const currentuser = await getUserByIdService(paramid);
@@ -134,7 +142,9 @@ const updateProfile = asyncHandler(async (req, res) => {
       hashedPassword,
       dob,
       contactno,
-      gender
+      gender,
+      filename,
+      filepath
     );
 
     res.status(200).json(updatedUser);
