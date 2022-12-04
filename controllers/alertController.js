@@ -1,16 +1,25 @@
 const asyncHandler = require('express-async-handler');
-const Alert = require('../models/alertModel');
+const { checkUserDataAuthorization } = require('../services/commonServices');
+
+const {
+  getAlertService,
+  setAlertService,
+  getAlertByIdService,
+  deleteAlertService
+} = require('../services/alertServices');
 
 // @desc    Get Alert
 // @route   GET /api/alert
 // @access  Private
-
 const getAlert = asyncHandler(async (req, res) => {
   const { id } = req.user;
 
-  const alert = await Alert.find({ user: id });
-
-  res.status(200).json(alert);
+  try {
+    const alert = await getAlertService({ user: id }, null, null);
+    res.status(200).json(alert);
+  } catch (e) {
+    throw new Error(e.message);
+  }
 });
 
 // @desc    Set Alert
@@ -25,45 +34,49 @@ const setAlert = asyncHandler(async (req, res) => {
     throw new Error('Please fill these details');
   }
 
-  const alert = await Alert.create({
-    alert_title: alerttitle,
-    amount_max: amountmax,
-    notify_type: notifytype,
-    category_type: categorytype,
-    user: id
-  });
-
-  res.status(200).json(alert);
+  try {
+    const alert = await setAlertService(alerttitle, amountmax, notifytype, categorytype, id);
+    res.status(200).json(alert);
+  } catch (e) {
+    throw new Error(e.message);
+  }
 });
 
 // @desc    Delete Alert
 // @route   DELETE /api/alert/:id
 // @access  Private
-
 const deleteAlert = asyncHandler(async (req, res) => {
   const paramid = req.params.id;
-  const alert = await Alert.findById(paramid);
   const { user } = req;
 
-  if (!alert) {
-    res.status(400);
-    throw new Error('Alert not found');
-  }
+  try {
+    const alert = await getAlertByIdService(paramid);
 
-  // Check for user
-  if (!user) {
-    res.status(401);
-    throw new Error('User not found');
-  }
+    // Check for alert
+    if (!alert) {
+      res.status(400);
+      throw new Error('Alert not found');
+    }
 
-  // Make sure the logged in user matches the alert
-  if (alert.user.toString() !== user.id) {
-    res.status(401);
-    throw new Error('User not authorized');
-  }
+    // Check for user
+    if (!user) {
+      res.status(401);
+      throw new Error('User not found');
+    }
 
-  await alert.remove();
-  res.status(200).json({ id: paramid });
+    // Check user and make sure the logged in user matches the category user
+    const Authorized = await checkUserDataAuthorization(alert, user);
+    if (!Authorized) {
+      res.status(401);
+      throw new Error('User not authorized');
+    }
+
+    await deleteAlertService(alert);
+
+    res.status(200).json({ id: paramid });
+  } catch (e) {
+    throw new Error(e.message);
+  }
 });
 
 module.exports = { getAlert, setAlert, deleteAlert };
