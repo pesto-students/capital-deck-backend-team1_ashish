@@ -23,6 +23,12 @@ const userSchema = mongoose.Schema(
     },
     gender: {
       type: String
+    },
+    file_name: {
+      type: String
+    },
+    file_path: {
+      type: String
     }
   },
   {

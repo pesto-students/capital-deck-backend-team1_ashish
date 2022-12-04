@@ -9,10 +9,11 @@ const {
   updateProfile
 } = require('../controllers/userController');
 const protect = require('../middleware/authMiddleware');
+const upload = require('../middleware/uploadMiddleware');
 
 router.post('/', registerUser);
 router.post('/login', loginUser);
 router.get('/me', protect, getProfile);
-router.put('/:id', protect, updateProfile);
+router.put('/:id', protect, upload.single('file'), updateProfile);
 
 module.exports = router;
