@@ -11,7 +11,7 @@ const incomeSchema = mongoose.Schema(
       required: [true, 'Please add the Title']
     },
     income_amount: {
-      type: String,
+      type: Number,
       required: [true, 'Please add the Amount']
     },
     income_receipt: {
