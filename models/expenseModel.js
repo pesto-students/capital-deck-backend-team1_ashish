@@ -10,7 +10,7 @@ const expenseSchema = mongoose.Schema(
       required: [true, 'Please add the Title']
     },
     expense_amount: {
-      type: String,
+      type: Number,
       required: [true, 'Please add the Amount']
     },
     expense_receipt: {

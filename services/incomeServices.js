@@ -30,7 +30,6 @@ const setIncomeServices = async (
 };
 
 const updateIncomeByIdService = async (id, incometitle, incomedate, incomeamount, categoryid) => {
-  console.log(id, incomeamount);
   const income = await Income.findByIdAndUpdate(
     id,
     {

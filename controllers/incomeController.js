@@ -106,6 +106,12 @@ const deleteIncome = asyncHandler(async (req, res) => {
       throw new Error('Income not found');
     }
 
+    // Check for user
+    if (!user) {
+      res.status(401);
+      throw new Error('User not found');
+    }
+
     // Check user and make sure the logged in user matches the category user
     const Authorized = await checkUserDataAuthorization(income, user);
     if (!Authorized) {
