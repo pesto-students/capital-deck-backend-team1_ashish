@@ -1,14 +1,25 @@
 const asyncHandler = require('express-async-handler');
-const Income = require('../models/incomeModel');
+const { checkUserDataAuthorization } = require('../services/commonServices');
+const {
+  getIncomeServices,
+  setIncomeServices,
+  deleteIncomeService,
+  getIncomeByIdService,
+  updateIncomeByIdService
+} = require('../services/incomeServices');
 
 // @desc    Get Income
 // @route   GET /api/income
 // @access  Private
 const getIncome = asyncHandler(async (req, res) => {
   const { id } = req.user;
-  const income = await Income.find({ user: id });
 
-  res.status(200).json(income);
+  try {
+    const incomes = await getIncomeServices({ user: id }, null, null);
+    res.status(200).json(incomes);
+  } catch (e) {
+    throw new Error(e.message);
+  }
 });
 
 // @desc    Set Income
@@ -23,16 +34,19 @@ const setIncome = asyncHandler(async (req, res) => {
     throw new Error('Please fill these fields');
   }
 
-  const income = await Income.create({
-    income_date: incomedate,
-    income_title: incometitle,
-    income_amount: incomeamount,
-    income_receipt: incomereceipt,
-    category_id: categoryid,
-    user: id
-  });
-
-  res.status(200).json(income);
+  try {
+    const income = await setIncomeServices(
+      incomedate,
+      incometitle,
+      incomeamount,
+      incomereceipt,
+      categoryid,
+      id
+    );
+    res.status(200).json(income);
+  } catch (e) {
+    throw new Error(e.message);
+  }
 });
 
 // @desc    Update Income
@@ -40,41 +54,42 @@ const setIncome = asyncHandler(async (req, res) => {
 // @access  Private
 const updateIncome = asyncHandler(async (req, res) => {
   const paramid = req.params.id;
-  const income = await Income.findById(paramid);
   const { user } = req;
   const { incomedate, incometitle, incomeamount, categoryid } = req.body;
 
-  if (!income) {
-    res.status(400);
-    throw new Error('Income not found');
-  }
-
-  // Check for user
-  if (!user) {
-    res.status(401);
-    throw new Error('User not found');
-  }
-
-  // Make sure the logged in user matches the income user
-  if (income.user.toString() !== user.id) {
-    res.status(401);
-    throw new Error('User not authorized');
-  }
-
-  const updatedIncome = await Income.findByIdAndUpdate(
-    paramid,
-    {
-      income_date: incomedate,
-      income_title: incometitle,
-      income_amount: incomeamount,
-      category_id: categoryid
-    },
-    {
-      new: true
+  try {
+    const income = await getIncomeByIdService(paramid);
+    // Income not found
+    if (!income) {
+      res.status(400);
+      throw new Error('Income not found');
     }
-  );
 
-  res.status(200).json(updatedIncome);
+    // Check for user
+    if (!user) {
+      res.status(401);
+      throw new Error('User not found');
+    }
+
+    // Check user and make sure the logged in user matches the category user
+    const Authorized = await checkUserDataAuthorization(income, user);
+    if (!Authorized) {
+      res.status(401);
+      throw new Error('User not authorized');
+    }
+
+    // Update income by Id
+    const updatedIncome = await updateIncomeByIdService(
+      paramid,
+      incomedate,
+      incometitle,
+      incomeamount,
+      categoryid
+    );
+    res.status(200).json(updatedIncome);
+  } catch (e) {
+    throw new Error(e.message);
+  }
 });
 
 // @desc    Delete Income
@@ -82,29 +97,28 @@ const updateIncome = asyncHandler(async (req, res) => {
 // @access  Private
 const deleteIncome = asyncHandler(async (req, res) => {
   const paramid = req.params.id;
-  const income = await Income.findById(paramid);
   const { user } = req;
+  try {
+    const income = await getIncomeByIdService(paramid);
+    // Check for Income
+    if (!income) {
+      res.status(400);
+      throw new Error('Income not found');
+    }
 
-  if (!income) {
-    res.status(400);
-    throw new Error('Income not found');
+    // Check user and make sure the logged in user matches the category user
+    const Authorized = await checkUserDataAuthorization(income, user);
+    if (!Authorized) {
+      res.status(401);
+      throw new Error('User not authorized');
+    }
+
+    await deleteIncomeService(income);
+
+    res.status(200).json({ id: paramid });
+  } catch (e) {
+    throw new Error(e.message);
   }
-
-  // Check for user
-  if (!user) {
-    res.status(401);
-    throw new Error('User not found');
-  }
-
-  // Make sure the logged in user matches the income user
-  if (income.user.toString() !== user.id) {
-    res.status(401);
-    throw new Error('User not authorized');
-  }
-
-  await income.remove();
-
-  res.status(200).json({ id: paramid });
 });
 
 module.exports = {
