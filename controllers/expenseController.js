@@ -26,8 +26,15 @@ const getExpense = asyncHandler(async (req, res) => {
 // @route   POST /api/expense
 // @access  Private
 const setExpense = asyncHandler(async (req, res) => {
-  const { expensedate, expensetitle, expenseamount, expensereceipt, categoryid } = req.body;
+  const { expensedate, expensetitle, expenseamount, categoryid } = req.body;
   const { id } = req.user;
+  let filename = '';
+  let filepath = '';
+  if (req.file !== undefined) {
+    filename = req.file.originalname;
+    filepath = req.file.path;
+  }
+  console.log(filename, filepath);
 
   if (!expensetitle && !expenseamount) {
     res.status(400);
@@ -39,8 +46,9 @@ const setExpense = asyncHandler(async (req, res) => {
       expensedate,
       expensetitle,
       expenseamount,
-      expensereceipt,
       categoryid,
+      filename,
+      filepath,
       id
     );
     res.status(200).json(expense);
@@ -70,6 +78,7 @@ const updateExpense = asyncHandler(async (req, res) => {
       res.status(401);
       throw new Error('User not found');
     }
+
     // Check user and make sure the logged in user matches the category user
     const Authorized = await checkUserDataAuthorization(expense, user);
     if (!Authorized) {
