@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Expense = require('../models/expenseModel');
 
 const getExpenseByIdService = async (id) => {
@@ -14,16 +15,18 @@ const setExpenseServices = async (
   expensedate,
   expensetitle,
   expenseamount,
-  expensereceipt,
   categoryid,
+  filename,
+  filepath,
   id
 ) => {
   const expense = await Expense.create({
     expense_date: expensedate,
     expense_title: expensetitle,
     expense_amount: expenseamount,
-    expense_receipt: expensereceipt,
-    category_id: categoryid,
+    category_id: mongoose.Types.ObjectId(categoryid),
+    file_name: filename,
+    file_path: filepath,
     user: id
   });
   return expense;

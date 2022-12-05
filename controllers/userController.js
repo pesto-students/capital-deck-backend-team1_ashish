@@ -47,7 +47,7 @@ const registerUser = asyncHandler(async (req, res) => {
         _id: newuser.id,
         name: newuser.name,
         email: newuser.email,
-        file_path: user.file_path,
+        file_path: newuser.file_path,
         token: generateTokenService(newuser._id)
       });
     } else {
