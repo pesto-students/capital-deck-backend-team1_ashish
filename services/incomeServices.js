@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Income = require('../models/incomeModel');
 
 const getIncomeByIdService = async (id) => {
@@ -14,16 +15,18 @@ const setIncomeServices = async (
   incomedate,
   incometitle,
   incomeamount,
-  incomereceipt,
   categoryid,
+  filename,
+  filepath,
   id
 ) => {
   const income = await Income.create({
     income_date: incomedate,
     income_title: incometitle,
     income_amount: incomeamount,
-    income_receipt: incomereceipt,
-    category_id: categoryid,
+    category_id: mongoose.Types.ObjectId(categoryid),
+    file_name: filename,
+    file_path: filepath,
     user: id
   });
   return income;

@@ -26,8 +26,14 @@ const getIncome = asyncHandler(async (req, res) => {
 // @route   POST /api/income
 // @access  Private
 const setIncome = asyncHandler(async (req, res) => {
-  const { incomedate, incometitle, incomeamount, incomereceipt, categoryid } = req.body;
+  const { incomedate, incometitle, incomeamount, categoryid } = req.body;
   const { id } = req.user;
+  let filename = '';
+  let filepath = '';
+  if (req.file !== undefined) {
+    filename = req.file.originalname;
+    filepath = req.file.path;
+  }
 
   if (!incometitle && !incomeamount) {
     res.status(400);
@@ -39,8 +45,9 @@ const setIncome = asyncHandler(async (req, res) => {
       incomedate,
       incometitle,
       incomeamount,
-      incomereceipt,
       categoryid,
+      filename,
+      filepath,
       id
     );
     res.status(200).json(income);

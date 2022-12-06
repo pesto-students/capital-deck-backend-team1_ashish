@@ -14,13 +14,16 @@ const incomeSchema = mongoose.Schema(
       type: Number,
       required: [true, 'Please add the Amount']
     },
-    income_receipt: {
-      type: String
-    },
     category_id: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref: 'Category'
+    },
+    file_name: {
+      type: String
+    },
+    file_path: {
+      type: String
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
