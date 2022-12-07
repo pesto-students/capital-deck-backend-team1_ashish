@@ -6,12 +6,17 @@ const {
   getExpense,
   setExpense,
   updateExpense,
-  deleteExpense
+  deleteExpense,
+  getExpenseSummary
 } = require('../controllers/expenseController');
 const protect = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
 
 router.route('/').get(protect, getExpense).post(protect, upload.single('file'), setExpense);
-router.route('/:id').put(protect, updateExpense).delete(protect, deleteExpense);
+router
+  .route('/:id')
+  .put(protect, upload.single('file'), updateExpense)
+  .delete(protect, deleteExpense);
+router.route('/summary').get(protect, getExpenseSummary);
 
 module.exports = router;

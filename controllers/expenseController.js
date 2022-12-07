@@ -5,8 +5,10 @@ const {
   setExpenseServices,
   getExpenseByIdService,
   updateExpenseByIdService,
-  deleteExpenseService
+  deleteExpenseService,
+  getExpenseSummaryServices
 } = require('../services/expenseServices');
+const { getCategoryByIdService } = require('../services/categoryServices');
 
 // @desc    Get Expense
 // @route   GET /api/expense
@@ -34,7 +36,6 @@ const setExpense = asyncHandler(async (req, res) => {
     filename = req.file.originalname;
     filepath = req.file.path;
   }
-  console.log(filename, filepath);
 
   if (!expensetitle && !expenseamount) {
     res.status(400);
@@ -51,6 +52,10 @@ const setExpense = asyncHandler(async (req, res) => {
       filepath,
       id
     );
+
+    const category = await getCategoryByIdService(categoryid);
+    expense.category_id = category;
+
     res.status(200).json(expense);
   } catch (e) {
     throw new Error(e.message);
@@ -64,6 +69,12 @@ const updateExpense = asyncHandler(async (req, res) => {
   const paramid = req.params.id;
   const { user } = req;
   const { expensedate, expensetitle, expenseamount, categoryid } = req.body;
+  let filename = '';
+  let filepath = '';
+  if (req.file !== undefined) {
+    filename = req.file.originalname;
+    filepath = req.file.path;
+  }
 
   try {
     const expense = await getExpenseByIdService(paramid);
@@ -92,8 +103,14 @@ const updateExpense = asyncHandler(async (req, res) => {
       expensedate,
       expensetitle,
       expenseamount,
-      categoryid
+      categoryid,
+      filename,
+      filepath
     );
+
+    const category = await getCategoryByIdService(categoryid);
+    updatedExpense.category_id = category;
+
     res.status(200).json(updatedExpense);
   } catch (e) {
     throw new Error(e.message);
@@ -137,4 +154,18 @@ const deleteExpense = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { getExpense, setExpense, updateExpense, deleteExpense };
+// @desc    Get Expense Summary
+// @route   GET /api/expense
+// @access  Private
+const getExpenseSummary = asyncHandler(async (req, res) => {
+  const { id } = req.user;
+  // New Change
+  try {
+    const expense = await getExpenseSummaryServices(id, null, null);
+    res.status(200).json(expense);
+  } catch (e) {
+    throw new Error(e.message);
+  }
+});
+
+module.exports = { getExpense, setExpense, updateExpense, deleteExpense, getExpenseSummary };
