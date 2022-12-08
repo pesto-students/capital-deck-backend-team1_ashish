@@ -24,11 +24,18 @@ const setExpenseServices = async (
   filepath,
   id
 ) => {
+  let category = 0;
+  if (categoryid === '') {
+    category = 0;
+  } else {
+    category = categoryid;
+  }
+
   const expense = await Expense.create({
     expense_date: expensedate,
     expense_title: expensetitle,
     expense_amount: expenseamount,
-    category_id: mongoose.Types.ObjectId(categoryid),
+    category_id: mongoose.Types.ObjectId(category),
     file_name: filename,
     file_path: filepath,
     user: id
