@@ -5,8 +5,10 @@ const {
   setIncomeServices,
   deleteIncomeService,
   getIncomeByIdService,
-  updateIncomeByIdService
+  updateIncomeByIdService,
+  getIncomeSummaryServices
 } = require('../services/incomeServices');
+const { getCategoryByIdService } = require('../services/categoryServices');
 
 // @desc    Get Income
 // @route   GET /api/income
@@ -50,6 +52,10 @@ const setIncome = asyncHandler(async (req, res) => {
       filepath,
       id
     );
+
+    const category = await getCategoryByIdService(categoryid);
+    income.category_id = category;
+
     res.status(200).json(income);
   } catch (e) {
     throw new Error(e.message);
@@ -63,6 +69,12 @@ const updateIncome = asyncHandler(async (req, res) => {
   const paramid = req.params.id;
   const { user } = req;
   const { incomedate, incometitle, incomeamount, categoryid } = req.body;
+  let filename = '';
+  let filepath = '';
+  if (req.file !== undefined) {
+    filename = req.file.originalname;
+    filepath = req.file.path;
+  }
 
   try {
     const income = await getIncomeByIdService(paramid);
@@ -91,8 +103,14 @@ const updateIncome = asyncHandler(async (req, res) => {
       incomedate,
       incometitle,
       incomeamount,
-      categoryid
+      categoryid,
+      filename,
+      filepath
     );
+
+    const category = await getCategoryByIdService(categoryid);
+    updatedIncome.category_id = category;
+
     res.status(200).json(updatedIncome);
   } catch (e) {
     throw new Error(e.message);
@@ -134,9 +152,24 @@ const deleteIncome = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Get Income Summary
+// @route   GET /api/income
+// @access  Private
+const getIncomeSummary = asyncHandler(async (req, res) => {
+  const { id } = req.user;
+
+  try {
+    const income = await getIncomeSummaryServices(id, null, null);
+    res.status(200).json(income);
+  } catch (e) {
+    throw new Error(e.message);
+  }
+});
+
 module.exports = {
   getIncome,
   setIncome,
   updateIncome,
-  deleteIncome
+  deleteIncome,
+  getIncomeSummary
 };
