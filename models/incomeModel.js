@@ -3,8 +3,7 @@ const mongoose = require('mongoose');
 const incomeSchema = mongoose.Schema(
   {
     income_date: {
-      type: String,
-      required: [true, 'Please add the Date']
+      type: String
     },
     income_title: {
       type: String,

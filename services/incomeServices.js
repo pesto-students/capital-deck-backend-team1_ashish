@@ -32,19 +32,32 @@ const setIncomeServices = async (
   return income;
 };
 
-const updateIncomeByIdService = async (id, incometitle, incomedate, incomeamount, categoryid) => {
-  const income = await Income.findByIdAndUpdate(
-    id,
-    {
-      income_date: incomedate,
-      income_title: incometitle,
-      income_amount: incomeamount,
-      category_id: categoryid
-    },
-    {
-      new: true
-    }
-  );
+const updateIncomeByIdService = async (
+  id,
+  incometitle,
+  incomedate,
+  incomeamount,
+  categoryid,
+  filename,
+  filepath
+) => {
+  let incomeData = {
+    income_title: incometitle,
+    income_date: incomedate,
+    income_amount: incomeamount,
+    category_id: mongoose.Types.ObjectId(categoryid)
+  };
+
+  if (filename !== '' && filename !== undefined && filepath !== '' && filepath !== undefined) {
+    incomeData = {
+      ...incomeData,
+      file_name: filename,
+      file_path: filepath
+    };
+  }
+  const income = await Income.findByIdAndUpdate(id, incomeData, {
+    new: true
+  });
   return income;
 };
 
@@ -52,10 +65,52 @@ const deleteIncomeService = async (dataobject) => {
   await dataobject.remove();
 };
 
+const getIncomeSummaryServices = async (id, projection, option) => {
+  const totalincome = await Income.aggregate([
+    {
+      $match: { user: mongoose.Types.ObjectId(id) }
+    },
+    { $group: { _id: null, income_amount: { $sum: '$income_amount' } } }
+  ]);
+
+  const firstdate = new Date();
+  const firstday = new Date(firstdate.getFullYear(), firstdate.getMonth() - 2, 1);
+  const lastdate = new Date();
+  const lastday = new Date(lastdate.getFullYear(), lastdate.getMonth(), 0);
+
+  const lastincome = await Income.aggregate([
+    {
+      $match: {
+        user: mongoose.Types.ObjectId(id),
+        income_date: {
+          $gte: new Date(firstday).toISOString(),
+          $lt: new Date(lastday).toISOString()
+        }
+      }
+    },
+    { $group: { _id: null, income_amount: { $sum: '$income_amount' } } }
+  ]);
+
+  const averageincome = await Income.aggregate([
+    {
+      $match: { user: mongoose.Types.ObjectId(id) }
+    },
+    {
+      $group: {
+        _id: { month: { $month: { $toDate: '$income_date' } } },
+        income_amount: { $sum: '$income_amount' }
+      }
+    }
+  ]);
+
+  return { totalincome, lastincome, averageincome };
+};
+
 module.exports = {
   getIncomeByIdService,
   getIncomeServices,
   setIncomeServices,
   updateIncomeByIdService,
-  deleteIncomeService
+  deleteIncomeService,
+  getIncomeSummaryServices
 };
