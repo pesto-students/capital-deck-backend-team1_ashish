@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const asyncHandler = require('express-async-handler');
 const Alert = require('../models/alertModel');
 
@@ -17,7 +18,7 @@ const getAlert = asyncHandler(async (req, res) => {
 // @route   POST /api/alert
 // @access  Private
 const setAlert = asyncHandler(async (req, res) => {
-  const { alerttitle, amountmax, notifytype, categorytype } = req.body;
+  const { alerttitle, amountmax, notifytype, categorytype, categoryid } = req.body;
   const { id } = req.user;
 
   if (!alerttitle && !amountmax) {
@@ -25,11 +26,19 @@ const setAlert = asyncHandler(async (req, res) => {
     throw new Error('Please fill these details');
   }
 
+  let category = 0;
+  if (categoryid === '') {
+    category = 0;
+  } else {
+    category = categoryid;
+  }
+
   const alert = await Alert.create({
     alert_title: alerttitle,
     amount_max: amountmax,
     notify_type: notifytype,
     category_type: categorytype,
+    category_id: mongoose.Types.ObjectId(category),
     user: id
   });
 

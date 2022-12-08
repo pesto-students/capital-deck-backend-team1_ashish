@@ -15,9 +15,24 @@ const { getCategoryByIdService } = require('../services/categoryServices');
 // @access  Private
 const getExpense = asyncHandler(async (req, res) => {
   const { id } = req.user;
+  const { search } = req.query;
+  const searchData = JSON.parse(search);
+
+  const query = { user: id };
+  if (searchData.categoryid !== 0) {
+    query.category_id = searchData.categoryid;
+  }
+  if (searchData.fromdate !== '' && searchData.todate !== '') {
+    const startdate = new Date(searchData.fromdate);
+    const enddate = new Date(searchData.todate);
+    query.expense_date = {
+      $gte: new Date(startdate).toISOString(),
+      $lt: new Date(enddate).toISOString()
+    };
+  }
 
   try {
-    const expense = await getExpenseServices({ user: id }, null, null);
+    const expense = await getExpenseServices(query, null, null);
     res.status(200).json(expense);
   } catch (e) {
     throw new Error(e.message);
