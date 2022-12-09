@@ -8,6 +8,8 @@ const {
   deleteIncomeService,
   getIncomeSummaryServices
 } = require('../services/incomeServices');
+const { sendMailForExeed } = require('../services/sendMailServices');
+const { getAlertExceedService } = require('../services/checkAlertServices');
 const { getCategoryByIdService } = require('../services/categoryServices');
 
 // @desc    Get Income
@@ -162,6 +164,14 @@ const deleteIncome = asyncHandler(async (req, res) => {
     }
 
     await deleteIncomeService(income);
+
+    const { exceedMsgReq, toalexpneseamount, toalincomeamount } = await getAlertExceedService(
+      user.id
+    );
+
+    if (exceedMsgReq === true && toalexpneseamount > toalincomeamount) {
+      await sendMailForExeed(req.user.email, toalexpneseamount, toalincomeamount);
+    }
 
     res.status(200).json({ id: paramid });
   } catch (e) {
