@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 const errorHandler = require('./middleware/errorMiddleware');
 const logger = require('./config/logger');
 
-const port = process.env.PORT || 80;
+const port = process.env.PORT || 5001;
 const connectDB = require('./config/db');
 
 connectDB();
