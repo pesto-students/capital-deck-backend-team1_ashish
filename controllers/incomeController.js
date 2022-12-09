@@ -3,9 +3,9 @@ const { checkUserDataAuthorization } = require('../services/commonServices');
 const {
   getIncomeServices,
   setIncomeServices,
-  deleteIncomeService,
   getIncomeByIdService,
   updateIncomeByIdService,
+  deleteIncomeService,
   getIncomeSummaryServices
 } = require('../services/incomeServices');
 const { getCategoryByIdService } = require('../services/categoryServices');
@@ -15,9 +15,24 @@ const { getCategoryByIdService } = require('../services/categoryServices');
 // @access  Private
 const getIncome = asyncHandler(async (req, res) => {
   const { id } = req.user;
+  const { search } = req.query;
+  const searchData = JSON.parse(search);
+
+  const query = { user: id };
+  if (searchData.categoryid !== 0) {
+    query.category_id = searchData.categoryid;
+  }
+  if (searchData.fromdate !== '' && searchData.todate !== '') {
+    const startdate = new Date(searchData.fromdate);
+    const enddate = new Date(searchData.todate);
+    query.expense_date = {
+      $gte: new Date(startdate).toISOString(),
+      $lt: new Date(enddate).toISOString()
+    };
+  }
 
   try {
-    const incomes = await getIncomeServices({ user: id }, null, null);
+    const incomes = await getIncomeServices(query, null, null);
     res.status(200).json(incomes);
   } catch (e) {
     throw new Error(e.message);
@@ -123,8 +138,10 @@ const updateIncome = asyncHandler(async (req, res) => {
 const deleteIncome = asyncHandler(async (req, res) => {
   const paramid = req.params.id;
   const { user } = req;
+
   try {
     const income = await getIncomeByIdService(paramid);
+
     // Check for Income
     if (!income) {
       res.status(400);

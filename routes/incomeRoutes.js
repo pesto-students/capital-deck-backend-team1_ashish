@@ -13,7 +13,6 @@ const protect = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
 
 router.route('/').get(protect, getIncome).post(protect, upload.single('file'), setIncome);
-
 router
   .route('/:id')
   .put(protect, upload.single('file'), updateIncome)

@@ -27,6 +27,7 @@ const setAlert = asyncHandler(async (req, res) => {
   }
 
   let category = 0;
+
   if (categoryid === '') {
     category = 0;
   } else {

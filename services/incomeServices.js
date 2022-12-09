@@ -7,7 +7,11 @@ const getIncomeByIdService = async (id) => {
 };
 
 const getIncomeServices = async (query, projection, option) => {
-  const incomes = await Income.find(query, projection, option);
+  const incomes = await Income.find(query, projection, option).populate({
+    path: 'category_id',
+    model: 'Category'
+  });
+
   return incomes;
 };
 
@@ -20,11 +24,18 @@ const setIncomeServices = async (
   filepath,
   id
 ) => {
+  let category = 0;
+  if (categoryid === '') {
+    category = 0;
+  } else {
+    category = categoryid;
+  }
+
   const income = await Income.create({
     income_date: incomedate,
     income_title: incometitle,
     income_amount: incomeamount,
-    category_id: mongoose.Types.ObjectId(categoryid),
+    category_id: mongoose.Types.ObjectId(category),
     file_name: filename,
     file_path: filepath,
     user: id
@@ -34,8 +45,8 @@ const setIncomeServices = async (
 
 const updateIncomeByIdService = async (
   id,
-  incometitle,
   incomedate,
+  incometitle,
   incomeamount,
   categoryid,
   filename,
@@ -55,6 +66,7 @@ const updateIncomeByIdService = async (
       file_path: filepath
     };
   }
+
   const income = await Income.findByIdAndUpdate(id, incomeData, {
     new: true
   });
