@@ -8,6 +8,8 @@ const {
   deleteExpenseService,
   getExpenseSummaryServices
 } = require('../services/expenseServices');
+const { sendMailForExeed } = require('../services/sendMailServices');
+const { getAlertExceedService } = require('../services/checkAlertServices');
 const { getCategoryByIdService } = require('../services/categoryServices');
 
 // @desc    Get Expense
@@ -71,6 +73,12 @@ const setExpense = asyncHandler(async (req, res) => {
     const category = await getCategoryByIdService(categoryid);
     expense.category_id = category;
 
+    const { exceedMsgReq, toalexpneseamount, toalincomeamount } = await getAlertExceedService(id);
+
+    if (exceedMsgReq === true && toalexpneseamount > toalincomeamount) {
+      await sendMailForExeed(req.user.email, toalexpneseamount, toalincomeamount);
+    }
+
     res.status(200).json(expense);
   } catch (e) {
     throw new Error(e.message);
@@ -125,6 +133,14 @@ const updateExpense = asyncHandler(async (req, res) => {
 
     const category = await getCategoryByIdService(categoryid);
     updatedExpense.category_id = category;
+
+    const { exceedMsgReq, toalexpneseamount, toalincomeamount } = await getAlertExceedService(
+      user.id
+    );
+
+    if (exceedMsgReq === true && toalexpneseamount > toalincomeamount) {
+      await sendMailForExeed(req.user.email, toalexpneseamount, toalincomeamount);
+    }
 
     res.status(200).json(updatedExpense);
   } catch (e) {

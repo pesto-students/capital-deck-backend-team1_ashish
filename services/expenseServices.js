@@ -86,7 +86,7 @@ const getExpenseSummaryServices = async (id, projection, option) => {
   ]);
 
   const firstdate = new Date();
-  const firstday = new Date(firstdate.getFullYear(), firstdate.getMonth() - 2, 1);
+  const firstday = new Date(firstdate.getFullYear(), firstdate.getMonth() - 1, 1);
   const lastdate = new Date();
   const lastday = new Date(lastdate.getFullYear(), lastdate.getMonth(), 0);
 
@@ -115,7 +115,24 @@ const getExpenseSummaryServices = async (id, projection, option) => {
     }
   ]);
 
-  return { totalexpense, lastexpense, averageexpense };
+  const firstdatec = new Date();
+  const firstdayc = new Date(firstdatec.getFullYear(), firstdatec.getMonth() - 0, 1);
+  const lastdatec = new Date();
+
+  const currentexpense = await Expense.aggregate([
+    {
+      $match: {
+        user: mongoose.Types.ObjectId(id),
+        expense_date: {
+          $gte: new Date(firstdayc).toISOString(),
+          $lt: new Date(lastdatec).toISOString()
+        }
+      }
+    },
+    { $group: { _id: null, expense_amount: { $sum: '$expense_amount' } } }
+  ]);
+
+  return { totalexpense, lastexpense, averageexpense, currentexpense };
 };
 
 module.exports = {

@@ -9,8 +9,10 @@ const logger = require('./config/logger');
 
 const port = process.env.PORT || 5001;
 const connectDB = require('./config/db');
+const scheduleMail = require('./config/schedule');
 
 connectDB();
+scheduleMail();
 
 const app = express();
 app.use(cors({ origin: '*' }));
