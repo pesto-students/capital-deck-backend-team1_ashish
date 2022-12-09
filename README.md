@@ -1,6 +1,5 @@
 # Capital Deck
 
-![CapitalDeck Logo](./src/assets/capital-deck-logo-d.svg)
 
 This is a Finance Management Web Application which allows you to monitor your Finances and manage them conveniently bu using various various features like setting a budget for a month or getting monthly statement notifications to keep you updated. 
 
