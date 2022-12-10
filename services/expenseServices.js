@@ -159,6 +159,7 @@ const getTotalAmountByExpenseService = async (id, projection, option) => {
     const data = {
       categoryid,
       categoryname: category.category_name,
+      color: category.color,
       totalamount: amount
     };
     totalAmountbyexpense.push(data);
