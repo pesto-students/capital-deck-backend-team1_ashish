@@ -24,12 +24,23 @@ const sendMailForExeed = async (toMail, toalexpneseamount, toalincomeamount) => 
   await sendMail(msg);
 };
 
-const sendMailForSchedule = async () => {
+const sendMailForSchedule = async (
+  toMail,
+  totalexpense,
+  currentexpense,
+  avgexpense,
+  totalincome,
+  currentincome,
+  avgincome
+) => {
+  const mailexpensesummary = `<b>Expense Summary<b><br>Total Expense: ${totalexpense} ₹<br>Current Month Expense: ${currentexpense} ₹<br>Average Expense: ${avgexpense} ₹<br>`;
+  const mailincomesummary = `<b>Income Summary<b><br>Total Income: ${totalincome} ₹<br>Current Month Income: ${currentincome} ₹<br>Average Income: ${avgincome} ₹<br>`;
+
   const msg = {
-    to: '18salmanz@gmail.com',
+    to: toMail,
     from: '18salmanz@gmail.com',
     subject: 'Capital Alert',
-    html: `<p>Hello<p>`
+    html: `<p>This is the monthly summary of your Finances as tracked on <a href="https://capitaldeck.netlify.app/login">Capital Deck</a>.<p><br><br>${mailexpensesummary}<br>${mailincomesummary}`
   };
 
   await sendMail(msg);

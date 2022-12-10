@@ -60,9 +60,15 @@ const updateUserByIdService = async (
   return updatedUser;
 };
 
+const getAllUser = async () => {
+  const user = await User.find();
+  return user;
+};
+
 module.exports = {
   getUserByIdService,
   checkUserExistService,
   createUserervice,
-  updateUserByIdService
+  updateUserByIdService,
+  getAllUser
 };

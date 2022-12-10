@@ -115,7 +115,7 @@ const getExpenseSummaryServices = async (id, projection, option) => {
         expense_amount: { $sum: '$expense_amount' }
       }
     },
-    { $sort: { expense_date: 1 } }
+    { $sort: { expense_date: -1 } }
   ]);
 
   const firstdatec = new Date();

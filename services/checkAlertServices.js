@@ -13,12 +13,9 @@ const getAlertExceedService = async (id) => {
   let toalexpneseamount = 0;
   let toalincomeamount = 0;
 
-  const expense = await Alert.find({ user: id, notify_type: 'EXCEED' }).populate({
-    path: 'category_id',
-    model: 'Category'
-  });
+  const alert = await Alert.find({ user: id, notify_type: 'EXCEED' });
 
-  if (expense.length > 0) {
+  if (alert.length > 0) {
     exceedMsgReq = true;
   }
 
@@ -41,6 +38,19 @@ const getAlertExceedService = async (id) => {
   return { exceedMsgReq, toalexpneseamount, toalincomeamount };
 };
 
+const getAlertMonthlyService = async (id) => {
+  let monthlyMsgReq = false;
+
+  const alert = await Alert.find({ user: id, notify_type: 'MONTHLY' });
+
+  if (alert.length > 0) {
+    monthlyMsgReq = true;
+  }
+
+  return monthlyMsgReq;
+};
+
 module.exports = {
-  getAlertExceedService
+  getAlertExceedService,
+  getAlertMonthlyService
 };

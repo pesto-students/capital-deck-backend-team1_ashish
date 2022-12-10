@@ -7,6 +7,7 @@ const { getFeedbackService, setFeedbackService } = require('../services/feedback
 const getFeedback = asyncHandler(async (req, res) => {
   try {
     const feedbacks = await getFeedbackService({}, null, null);
+    console.log(feedbacks);
     res.status(200).json(feedbacks);
   } catch (e) {
     throw new Error(e.message);
