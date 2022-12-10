@@ -7,7 +7,8 @@ const {
   updateExpenseByIdService,
   deleteExpenseService,
   getExpenseSummaryServices,
-  getTotalAmountByExpenseService
+  getTotalAmountByExpenseService,
+  getRecentExpenseServices
 } = require('../services/expenseServices');
 const { sendMailForExeed } = require('../services/sendMailServices');
 const { getAlertExceedService } = require('../services/checkAlertServices');
@@ -214,11 +215,26 @@ const getTotalAmountByExpense = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Get Recent Expense
+// @route   GET /api/expense/recent
+// @access  Private
+const getRecentExpense = asyncHandler(async (req, res) => {
+  const { id } = req.user;
+
+  try {
+    const expense = await getRecentExpenseServices({ user: id }, null, null);
+    res.status(200).json(expense);
+  } catch (e) {
+    throw new Error(e.message);
+  }
+});
+
 module.exports = {
   getExpense,
   setExpense,
   updateExpense,
   deleteExpense,
   getExpenseSummary,
-  getTotalAmountByExpense
+  getTotalAmountByExpense,
+  getRecentExpense
 };

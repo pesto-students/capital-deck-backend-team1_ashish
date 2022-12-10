@@ -167,6 +167,18 @@ const getTotalAmountByExpenseService = async (id, projection, option) => {
   return totalAmountbyexpense;
 };
 
+const getRecentExpenseServices = async (query, projection, option) => {
+  const expense = await Expense.find(query, projection, option)
+    .limit(5)
+    .sort({ expense_date: -1 })
+    .populate({
+      path: 'category_id',
+      model: 'Category'
+    });
+
+  return expense;
+};
+
 module.exports = {
   getExpenseByIdService,
   getExpenseServices,
@@ -174,5 +186,6 @@ module.exports = {
   updateExpenseByIdService,
   deleteExpenseService,
   getExpenseSummaryServices,
-  getTotalAmountByExpenseService
+  getTotalAmountByExpenseService,
+  getRecentExpenseServices
 };

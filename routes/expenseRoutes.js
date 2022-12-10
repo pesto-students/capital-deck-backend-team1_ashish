@@ -8,7 +8,8 @@ const {
   updateExpense,
   deleteExpense,
   getExpenseSummary,
-  getTotalAmountByExpense
+  getTotalAmountByExpense,
+  getRecentExpense
 } = require('../controllers/expenseController');
 const protect = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
@@ -20,5 +21,6 @@ router
   .delete(protect, deleteExpense);
 router.route('/summary').get(protect, getExpenseSummary);
 router.route('/amountexpense').get(protect, getTotalAmountByExpense);
+router.route('/recent').get(protect, getRecentExpense);
 
 module.exports = router;

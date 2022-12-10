@@ -167,6 +167,18 @@ const getTotalAmountByIncomeService = async (id, projection, option) => {
   return totalAmountbyincome;
 };
 
+const getRecentIncomeServices = async (query, projection, option) => {
+  const incomes = await Income.find(query, projection, option)
+    .limit(5)
+    .sort({ income_date: -1 })
+    .populate({
+      path: 'category_id',
+      model: 'Category'
+    });
+
+  return incomes;
+};
+
 module.exports = {
   getIncomeByIdService,
   getIncomeServices,
@@ -174,5 +186,6 @@ module.exports = {
   updateIncomeByIdService,
   deleteIncomeService,
   getIncomeSummaryServices,
-  getTotalAmountByIncomeService
+  getTotalAmountByIncomeService,
+  getRecentIncomeServices
 };
