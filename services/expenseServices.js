@@ -1,5 +1,7 @@
+/* eslint-disable no-await-in-loop */
 const mongoose = require('mongoose');
 const Expense = require('../models/expenseModel');
+const { getCategoryByIdService } = require('./categoryServices');
 
 const getExpenseByIdService = async (id) => {
   const expense = await Expense.findById(id);
@@ -112,7 +114,8 @@ const getExpenseSummaryServices = async (id, projection, option) => {
         _id: { month: { $month: { $toDate: '$expense_date' } } },
         expense_amount: { $sum: '$expense_amount' }
       }
-    }
+    },
+    { $sort: { expense_date: 1 } }
   ]);
 
   const firstdatec = new Date();
@@ -135,11 +138,41 @@ const getExpenseSummaryServices = async (id, projection, option) => {
   return { totalexpense, lastexpense, averageexpense, currentexpense };
 };
 
+const getTotalAmountByExpenseService = async (id, projection, option) => {
+  const amountbyexpense = await Expense.aggregate([
+    {
+      $match: { user: mongoose.Types.ObjectId(id) }
+    },
+    {
+      $group: {
+        _id: { category: '$category_id' },
+        expense_amount: { $sum: '$expense_amount' }
+      }
+    }
+  ]);
+
+  const totalAmountbyexpense = [];
+  for (let i = 0; i < amountbyexpense.length; i += 1) {
+    const categoryid = amountbyexpense[i]._id.category;
+    const amount = amountbyexpense[i].expense_amount;
+    const category = await getCategoryByIdService(categoryid);
+    const data = {
+      categoryid,
+      categoryname: category.category_name,
+      totalamount: amount
+    };
+    totalAmountbyexpense.push(data);
+  }
+
+  return totalAmountbyexpense;
+};
+
 module.exports = {
   getExpenseByIdService,
   getExpenseServices,
   setExpenseServices,
   updateExpenseByIdService,
   deleteExpenseService,
-  getExpenseSummaryServices
+  getExpenseSummaryServices,
+  getTotalAmountByExpenseService
 };

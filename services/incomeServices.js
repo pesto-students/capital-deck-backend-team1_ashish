@@ -1,5 +1,7 @@
+/* eslint-disable no-await-in-loop */
 const mongoose = require('mongoose');
 const Income = require('../models/incomeModel');
+const { getCategoryByIdService } = require('./categoryServices');
 
 const getIncomeByIdService = async (id) => {
   const income = await Income.findById(id);
@@ -112,7 +114,8 @@ const getIncomeSummaryServices = async (id, projection, option) => {
         _id: { month: { $month: { $toDate: '$income_date' } } },
         income_amount: { $sum: '$income_amount' }
       }
-    }
+    },
+    { $sort: { income_date: 1 } }
   ]);
 
   const firstdatec = new Date();
@@ -135,11 +138,41 @@ const getIncomeSummaryServices = async (id, projection, option) => {
   return { totalincome, lastincome, averageincome, currentexpense };
 };
 
+const getTotalAmountByIncomeService = async (id, projection, option) => {
+  const amountbyincome = await Income.aggregate([
+    {
+      $match: { user: mongoose.Types.ObjectId(id) }
+    },
+    {
+      $group: {
+        _id: { category: '$category_id' },
+        income_amount: { $sum: '$income_amount' }
+      }
+    }
+  ]);
+
+  const totalAmountbyincome = [];
+  for (let i = 0; i < amountbyincome.length; i += 1) {
+    const categoryid = amountbyincome[i]._id.category;
+    const amount = amountbyincome[i].income_amount;
+    const category = await getCategoryByIdService(categoryid);
+    const data = {
+      categoryid,
+      categoryname: category.category_name,
+      totalamount: amount
+    };
+    totalAmountbyincome.push(data);
+  }
+
+  return totalAmountbyincome;
+};
+
 module.exports = {
   getIncomeByIdService,
   getIncomeServices,
   setIncomeServices,
   updateIncomeByIdService,
   deleteIncomeService,
-  getIncomeSummaryServices
+  getIncomeSummaryServices,
+  getTotalAmountByIncomeService
 };
