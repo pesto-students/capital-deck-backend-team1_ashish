@@ -10,8 +10,11 @@ const {
   getTotalAmountByExpenseService,
   getRecentExpenseServices
 } = require('../services/expenseServices');
-const { sendMailForExeed } = require('../services/sendMailServices');
-const { getAlertExceedService } = require('../services/checkAlertServices');
+const { sendMailForExeed, sendMailForCondition } = require('../services/sendMailServices');
+const {
+  getAlertExceedService,
+  getAlertConditionService
+} = require('../services/checkAlertServices');
 const { getCategoryByIdService } = require('../services/categoryServices');
 
 // @desc    Get Expense
@@ -74,11 +77,21 @@ const setExpense = asyncHandler(async (req, res) => {
 
     const category = await getCategoryByIdService(categoryid);
     expense.category_id = category;
+    const categoryname = category.category_name;
 
     const { exceedMsgReq, toalexpneseamount, toalincomeamount } = await getAlertExceedService(id);
 
     if (exceedMsgReq === true && toalexpneseamount > toalincomeamount) {
       await sendMailForExeed(req.user.email, toalexpneseamount, toalincomeamount);
+    }
+
+    const { conditionMsgReq, maxamount, totalamount } = await getAlertConditionService(
+      id,
+      categoryid
+    );
+
+    if (conditionMsgReq === true && totalamount > maxamount) {
+      await sendMailForCondition(req.user.email, totalamount, maxamount, categoryname);
     }
 
     res.status(200).json(expense);

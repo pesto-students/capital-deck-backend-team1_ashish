@@ -7,7 +7,7 @@ const { getExpenseSummaryServices } = require('../services/expenseServices');
 const { getIncomeSummaryServices } = require('../services/incomeServices');
 
 const scheduleMail = () => {
-  const job = schedule.scheduleJob('2 * * * *', async function () {
+  const job = schedule.scheduleJob('* * 1 * *', async function () {
     let totalexpense = 0;
     let totalincome = 0;
     let avgexpense = 0;

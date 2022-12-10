@@ -33,8 +33,8 @@ const sendMailForSchedule = async (
   currentincome,
   avgincome
 ) => {
-  const mailexpensesummary = `<b>Expense Summary<b><br>Total Expense: ${totalexpense} ₹<br>Current Month Expense: ${currentexpense} ₹<br>Average Expense: ${avgexpense} ₹<br>`;
-  const mailincomesummary = `<b>Income Summary<b><br>Total Income: ${totalincome} ₹<br>Current Month Income: ${currentincome} ₹<br>Average Income: ${avgincome} ₹<br>`;
+  const mailexpensesummary = `<b>Expense Summary</b><br>Total Expense: ${totalexpense} ₹<br>Current Month Expense: ${currentexpense} ₹<br>Average Expense: ${avgexpense} ₹<br>`;
+  const mailincomesummary = `<b>Income Summary</b><br>Total Income: ${totalincome} ₹<br>Current Month Income: ${currentincome} ₹<br>Average Income: ${avgincome} ₹<br>`;
 
   const msg = {
     to: toMail,
@@ -46,4 +46,14 @@ const sendMailForSchedule = async (
   await sendMail(msg);
 };
 
-module.exports = { sendMailForExeed, sendMailForSchedule };
+const sendMailForCondition = async (toMail, totalamount, maxamount, category) => {
+  const msg = {
+    to: toMail,
+    from: '18salmanz@gmail.com',
+    subject: 'Capital Alert',
+    html: `<p>According to your Capital Alert, Your total amount ${totalamount} ₹ for ${category} has exceeded your set limit of ${maxamount} ₹. <br>To tracke your finances, Please visit <a href="https://capitaldeck.netlify.app/login">Capital Deck</a>`
+  };
+  await sendMail(msg);
+};
+
+module.exports = { sendMailForExeed, sendMailForSchedule, sendMailForCondition };

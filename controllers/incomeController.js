@@ -10,8 +10,11 @@ const {
   getTotalAmountByIncomeService,
   getRecentIncomeServices
 } = require('../services/incomeServices');
-const { sendMailForExeed } = require('../services/sendMailServices');
-const { getAlertExceedService } = require('../services/checkAlertServices');
+const { sendMailForExeed, sendMailForCondition } = require('../services/sendMailServices');
+const {
+  getAlertExceedService,
+  getAlertConditionService
+} = require('../services/checkAlertServices');
 const { getCategoryByIdService } = require('../services/categoryServices');
 
 // @desc    Get Income
@@ -74,6 +77,16 @@ const setIncome = asyncHandler(async (req, res) => {
 
     const category = await getCategoryByIdService(categoryid);
     income.category_id = category;
+    const categoryname = category.category_name;
+
+    const { conditionMsgReq, maxamount, totalamount } = await getAlertConditionService(
+      id,
+      categoryid
+    );
+
+    if (conditionMsgReq === true && totalamount > maxamount) {
+      await sendMailForCondition(req.user.email, totalamount, maxamount, categoryname);
+    }
 
     res.status(200).json(income);
   } catch (e) {
