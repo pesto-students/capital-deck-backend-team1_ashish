@@ -6,7 +6,8 @@ const {
   getIncomeByIdService,
   updateIncomeByIdService,
   deleteIncomeService,
-  getIncomeSummaryServices
+  getIncomeSummaryServices,
+  getTotalAmountByIncomeService
 } = require('../services/incomeServices');
 const { sendMailForExeed } = require('../services/sendMailServices');
 const { getAlertExceedService } = require('../services/checkAlertServices');
@@ -180,7 +181,7 @@ const deleteIncome = asyncHandler(async (req, res) => {
 });
 
 // @desc    Get Income Summary
-// @route   GET /api/income
+// @route   GET /api/income/summary
 // @access  Private
 const getIncomeSummary = asyncHandler(async (req, res) => {
   const { id } = req.user;
@@ -193,10 +194,25 @@ const getIncomeSummary = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Get Amount Income
+// @route   GET /api/income/amountincome
+// @access  Private
+const getTotalAmountByIncome = asyncHandler(async (req, res) => {
+  const { id } = req.user;
+
+  try {
+    const income = await getTotalAmountByIncomeService(id, null, null);
+    res.status(200).json(income);
+  } catch (e) {
+    throw new Error(e.message);
+  }
+});
+
 module.exports = {
   getIncome,
   setIncome,
   updateIncome,
   deleteIncome,
-  getIncomeSummary
+  getIncomeSummary,
+  getTotalAmountByIncome
 };

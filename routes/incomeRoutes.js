@@ -7,7 +7,8 @@ const {
   setIncome,
   updateIncome,
   deleteIncome,
-  getIncomeSummary
+  getIncomeSummary,
+  getTotalAmountByIncome
 } = require('../controllers/incomeController');
 const protect = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
@@ -18,5 +19,6 @@ router
   .put(protect, upload.single('file'), updateIncome)
   .delete(protect, deleteIncome);
 router.route('/summary').get(protect, getIncomeSummary);
+router.route('/amountincome').get(protect, getTotalAmountByIncome);
 
 module.exports = router;
