@@ -115,14 +115,14 @@ const getIncomeSummaryServices = async (id, projection, option) => {
         income_amount: { $sum: '$income_amount' }
       }
     },
-    { $sort: { income_date: 1 } }
+    { $sort: { income_date: -1 } }
   ]);
 
   const firstdatec = new Date();
   const firstdayc = new Date(firstdatec.getFullYear(), firstdatec.getMonth() - 0, 1);
   const lastdatec = new Date();
 
-  const currentexpense = await Income.aggregate([
+  const currentincome = await Income.aggregate([
     {
       $match: {
         user: mongoose.Types.ObjectId(id),
@@ -135,7 +135,7 @@ const getIncomeSummaryServices = async (id, projection, option) => {
     { $group: { _id: null, income_amount: { $sum: '$income_amount' } } }
   ]);
 
-  return { totalincome, lastincome, averageincome, currentexpense };
+  return { totalincome, lastincome, averageincome, currentincome };
 };
 
 const getTotalAmountByIncomeService = async (id, projection, option) => {
