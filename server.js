@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 const errorHandler = require('./middleware/errorMiddleware');
 const logger = require('./config/logger');
 
-const port = process.env.PORT || 5001;
+const port = process.env.PORT || 5000;
 const connectDB = require('./config/db');
 const scheduleMail = require('./config/schedule');
 
@@ -31,6 +31,11 @@ app.use('/api/categoryexpenses', require('./routes/expenseByCategoryRoutes'));
 app.use('/api/alert', require('./routes/alertRoutes'));
 
 app.use(errorHandler);
+
+// Create GET request
+app.get('/', (req, res) => {
+  res.send('Express on Vercel');
+});
 
 app.listen(port, () => {
   logger.info(`Server started on port ${port}`);
