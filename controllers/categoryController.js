@@ -5,7 +5,8 @@ const {
   setCategoriesService,
   getCategoryByIdService,
   updateCategoryByIdService,
-  deleteCategoryService
+  deleteCategoryService,
+  deleteAlertCategoryService
 } = require('../services/categoryServices');
 
 // @desc    Get Categories
@@ -111,6 +112,7 @@ const deleteCategory = asyncHandler(async (req, res) => {
 
     // Delete category
     await deleteCategoryService(category);
+    await deleteAlertCategoryService(user, paramid);
 
     res.status(200).json({ id: paramid });
   } catch (e) {

@@ -1,4 +1,6 @@
+const mongoose = require('mongoose');
 const Category = require('../models/categoryModel');
+const Alert = require('../models/alertModel');
 
 const getCategoryByIdService = async (id) => {
   const category = await Category.findById(id);
@@ -41,10 +43,30 @@ const deleteCategoryService = async (dataobject) => {
   await dataobject.remove();
 };
 
+const deleteAlertCategoryService = async (user, id) => {
+  const alert = await Alert.findOne({ category_id: mongoose.Types.ObjectId(id) });
+  if (!alert) {
+    return;
+  }
+
+  // Check for user
+  if (!user) {
+    return;
+  }
+
+  // Make sure the logged in user matches the alert
+  if (alert.user.toString() !== user.id) {
+    return;
+  }
+
+  await alert.remove();
+};
+
 module.exports = {
   getCategoryByIdService,
   getCategoriesService,
   setCategoriesService,
   updateCategoryByIdService,
-  deleteCategoryService
+  deleteCategoryService,
+  deleteAlertCategoryService
 };

@@ -156,13 +156,15 @@ const getTotalAmountByIncomeService = async (id, projection, option) => {
     const categoryid = amountbyincome[i]._id.category;
     const amount = amountbyincome[i].income_amount;
     const category = await getCategoryByIdService(categoryid);
-    const data = {
-      categoryid,
-      categoryname: category.category_name,
-      color: category.color,
-      totalamount: amount
-    };
-    totalAmountbyincome.push(data);
+    if (category) {
+      const data = {
+        categoryid,
+        categoryname: category.category_name,
+        color: category.color,
+        totalamount: amount
+      };
+      totalAmountbyincome.push(data);
+    }
   }
 
   return totalAmountbyincome;
