@@ -1,0 +1,6 @@
+{
+  message: 'Server started on port 8000',
+  level: 'info',
+  label: 'Capital Deck Log',
+  timestamp: 'Jan-14-2023 12:36:26'
+}
