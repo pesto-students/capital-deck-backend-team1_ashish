@@ -5,7 +5,7 @@ const path = require('path');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const errorHandler = require('./middleware/errorMiddleware');
-const logger = require('./config/logger');
+// const logger = require('./config/logger');
 
 const port = process.env.PORT || 5000;
 const connectDB = require('./config/db');
@@ -38,5 +38,6 @@ app.get('/', (req, res) => {
 });
 
 app.listen(port, () => {
-  logger.info(`Server started on port ${port}`);
+  // logger.info(`Server started on port ${port}`);
+  console.log(`Server started on Port ${port}`);
 });
