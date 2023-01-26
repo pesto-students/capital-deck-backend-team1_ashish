@@ -1,4 +1,4 @@
-// const logger = require('../config/logger');
+const logger = require('../config/logger');
 
 const errorHandler = (err, req, res, next) => {
   const statusCode = res.statusCode ? res.statusCode : 500;
@@ -8,13 +8,13 @@ const errorHandler = (err, req, res, next) => {
     errormail = req.user.email;
   }
 
-  // logger.error({
-  //   message: err.message,
-  //   user: errormail,
-  //   ip: req.ip,
-  //   method: req.method,
-  //   path: req.path
-  // });
+  logger.error({
+    message: err.message,
+    user: errormail,
+    ip: req.ip,
+    method: req.method,
+    path: req.path
+  });
 
   res.status(statusCode);
   res.json({
