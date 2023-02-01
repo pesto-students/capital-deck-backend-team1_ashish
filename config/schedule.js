@@ -22,12 +22,24 @@ const scheduleMail = () => {
       if (monthlyMsgReq) {
         const expense = await getExpenseSummaryServices(users[i]._id, null, null);
         const income = await getIncomeSummaryServices(users[i]._id, null, null);
-        totalexpense = expense.totalexpense[0].expense_amount.toFixed(2);
-        totalincome = income.totalincome[0].income_amount.toFixed(2);
-        currentexpense = expense.currentexpense[0].expense_amount.toFixed(2);
-        currentincome = income.currentincome[0].income_amount.toFixed(2);
-        avgexpense = (totalexpense / expense.averageexpense.length).toFixed(2);
-        avgincome = (totalincome / income.averageincome.length).toFixed(2);
+
+        if (expense.totalexpense.length > 0)
+          totalexpense = expense.totalexpense[0].expense_amount.toFixed(2);
+
+        if (income.totalincome.length > 0)
+          totalincome = income.totalincome[0].income_amount.toFixed(2);
+
+        if (expense.currentexpense.length > 0)
+          currentexpense = expense.currentexpense[0].expense_amount.toFixed(2);
+
+        if (income.currentincome.length > 0)
+          currentincome = income.currentincome[0].income_amount.toFixed(2);
+
+        if (expense.averageexpense.length > 0)
+          avgexpense = (totalexpense / expense.averageexpense.length).toFixed(2);
+
+        if (income.averageincome.length > 0)
+          avgincome = (totalincome / income.averageincome.length).toFixed(2);
 
         await sendMailForSchedule(
           users[i].email,
